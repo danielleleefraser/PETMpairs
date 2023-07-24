@@ -474,5 +474,39 @@ Summarize.null.morph<-function(null.list){ # summarizes just for the three time 
 }
 
 
+library(EcoSimR)
+
+Shuffletaxa<-function(occur,clim_prefs,BMs,loco,niter){
+  clim_list<-list()
+  BM_list<-list()
+  loco_list<-list()
+  for(f in 1:niter){
+    clim_comp<-list()
+    BM_comp<-list()
+    loco_comp<-list()
+    randommatrix<-sim3(occurrences)
+    rownames(randommatrix)<-rownames(occurrences)
+    for(b in 1:length(bins)){
+      matches_sites<-intersect(bins[[b]],rownames(randommatrix))
+      matrix1<-randommatrix[matches_sites,]
+      matrix1<-t(matrix1)
+      sig_pairs<-pairs_calc(matrix1)
+      clim_comp[[b]]<-compare_climpref(sig_pairs,clim_prefs,calc.means = FALSE)
+      BM_comp[[b]]<-compare_mass(sig_pairs,BMs,calc.means = FALSE) # needs to be lists
+      loco_comp[[b]]<-compare_loco(sig_pairs,loco,calc.means = FALSE)
+    }
+    clim_list[[f]]<-clim_comp 
+    BM_list[[f]]<-BM_comp # 3 levels within each iter
+    loco_list[[f]]<-loco_comp
+  }
+  BM_null<-Summarize.null.morph(BM_list)# has to work with a list.
+  
+  Loco_null<-Summarize.null.morph(loco_list)
+  
+  Clim_null<-Summarize.null.clims(clim_list)
+  
+  all_null<-list(BM_null,Loco_null,Clim_null)
+  return(all_null)
+}
 
 ####
