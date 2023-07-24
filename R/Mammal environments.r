@@ -260,7 +260,7 @@ write.csv(mammal_pref,here("Data/Mammal climate prefs new.csv"))
 # Assess change in mean climate preference through time
 
 climpref<-read.csv(here("Data/Mammal climate prefs new.csv"),header=T,row.names=1)
-BMs<-read.csv(here("Data/All masses combined Feb 2017.csv"),header=T,row.names=1)
+BMs<-read.csv(here("Data/All masses combined.csv"),header=T,row.names=1)
 loco<-read.csv(here("Data/LocomotorData.csv"),header=T,row.names=1)
 
 # Clarkfork3
@@ -885,8 +885,6 @@ mean_loco[3,1]<-mean(na.omit(Was1loco$npose))
 mean_loco[3,2]<-sd(na.omit(Was1loco$npose))
 mean_loco[3,3]<-sd(na.omit(Was1loco$npose))/sqrt(nrow(Was1loco))
 
-
-setwd("C:\\Users\\dfraser\\Dropbox\\CMN palaeobiologist\\Student projects\\Misha\\")
 
 
 library(ggplot2)
