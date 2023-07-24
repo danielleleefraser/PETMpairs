@@ -99,7 +99,7 @@ clark3_occur<-t(table)
 cooccur.clark3<-pairs_calc(clark3_occur)
 
 clim_prefs<-read.csv(here("Data/Mammal climate prefs new.csv"),header=T,row.names = 1)
-BMs<-read.csv(here("Data/All masses combined Feb 2017.csv"),header=T,row.names=1)
+BMs<-read.csv(here("Data/All masses combined.csv"),header=T,row.names=1)
 loco<-read.csv(here("Data/LocomotorData.csv"),header=T,row.names=1)
 
 # Compare climate preferences of pairs
