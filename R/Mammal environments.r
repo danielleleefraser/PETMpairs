@@ -3,7 +3,6 @@ library(here)
 
 mammals<-read.csv(here("Data/Mammal lat longs.csv",header=T),row.names=2)
 plants<-read.csv(here("Data/Plant_latlong_new.csv"),header=T,row.names=1)
-# This file is not provided until the data are published
 
 mam_plant<-rbind(mammals,plants)
 
