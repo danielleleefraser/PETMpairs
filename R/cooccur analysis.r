@@ -103,7 +103,7 @@ BMs<-read.csv(here("Data/All masses combined.csv"),header=T,row.names=1)
 Clark3clim_comp<-compare_climpref(cooccur.clark3,clim_prefs,calc.means=FALSE)
 
 # Compare masses of pairs
-Clark3BM_comp<-compare_mass(cooccur.clark3,BMs,calc.means = FALSE)
+Clark3bm_comp<-compare_mass(cooccur.clark3,BMs,calc.means = FALSE)
 
 # Repeat for other two NALMAs
 
@@ -174,7 +174,7 @@ cooccur.Was0<-pairs_calc(Was0_occur)
 Was0clim_comp<-compare_climpref(cooccur.Was0,clim_prefs,calc.means=FALSE)
 
 
-Was0BM_comp<-compare_mass(cooccur.Was0,BMs,calc.means = FALSE)
+Was0bm_comp<-compare_mass(cooccur.Was0,BMs,calc.means = FALSE)
 
 # WASOne
 
@@ -226,7 +226,7 @@ cooccur.Was1<-pairs_calc(Was1_occur)
 
 Was1clim_comp<-compare_climpref(cooccur.Was1,clim_prefs,calc.means=FALSE)
 
-Was1BM_comp<-compare_mass(cooccur.Was1,BMs,calc.means = FALSE)
+Was1bm_comp<-compare_mass(cooccur.Was1,BMs,calc.means = FALSE)
 
 Was1loco_comp<-compare_loco(cooccur.Was1,loco,calc.means = FALSE)
 
