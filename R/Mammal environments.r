@@ -260,7 +260,6 @@ write.csv(mammal_pref,here("Data/Mammal climate prefs new.csv"))
 
 climpref<-read.csv(here("Data/Mammal climate prefs new.csv"),header=T,row.names=1)
 BMs<-read.csv(here("Data/All masses combined.csv"),header=T,row.names=1)
-loco<-read.csv(here("Data/LocomotorData.csv"),header=T,row.names=1)
 
 # Clarkfork3
 
@@ -348,7 +347,6 @@ clark3_occur<-t(table)
 
 clark3_clims<-climpref[rownames(clark3_occur),]
 clark3_BM<-BMs[rownames(clark3_occur),]
-clark3loco<-loco[rownames(clark3_occur),]
 # make new object to put means in
 
 mean_clims<-matrix(nrow=3,ncol=6)
@@ -366,11 +364,6 @@ mean_BM[1,1]<-mean(na.omit(clark3_BM$ln_mass))
 mean_BM[1,2]<-sd(na.omit(clark3_BM$ln_mass))
 mean_BM[1,3]<-sd(na.omit(clark3_BM$ln_mass))/sqrt(nrow(clark3_BM))
 
-mean_loco<-matrix(nrow=3,ncol=3)
-colnames(mean_loco)<-c("Meanloco","SDloco","SEloco")
-mean_loco[1,1]<-mean(na.omit(clark3loco$npose))
-mean_loco[1,2]<-sd(na.omit(clark3loco$npose))
-mean_loco[1,3]<-sd(na.omit(clark3loco$npose))/sqrt(nrow(clark3loco))
 
 # Was0
 
@@ -438,7 +431,6 @@ Was0_occur<-t(table)
 
 Was0_clims<-climpref[rownames(Was0_occur),]
 Was0_BM<-BMs[rownames(Was0_occur),]
-Was0loco<-loco[rownames(Was0_occur),]
 # make new object to put means in
 
 mean_clims[2,1]<-mean(Was0_clims$V1)
@@ -453,12 +445,6 @@ colnames(mean_BM)<-c("MeanBM","SDBM","SEBM")
 mean_BM[2,1]<-mean(na.omit(Was0_BM$ln_mass))
 mean_BM[2,2]<-sd(na.omit(Was0_BM$ln_mass))
 mean_BM[2,3]<-sd(na.omit(Was0_BM$ln_mass))/sqrt(nrow(Was0_BM))
-
-colnames(mean_loco)<-c("Meanloco","SDloco","SEloco")
-mean_loco[2,1]<-mean(na.omit(Was0loco$npose))
-mean_loco[2,2]<-sd(na.omit(Was0loco$npose))
-mean_loco[2,3]<-sd(na.omit(Was0loco$npose))/sqrt(nrow(Was0loco))
-
 
 
 # WASOne
@@ -509,7 +495,6 @@ Was1_occur<-t(table)
 
 Was1_clims<-climpref[rownames(Was1_occur),]
 Was1_BM<-BMs[rownames(Was1_occur),]
-Was1loco<-loco[rownames(Was1_occur),]
 # make new object to put means in
 
 mean_clims[3,1]<-mean(Was1_clims$V1)
@@ -525,82 +510,7 @@ mean_BM[3,1]<-mean(na.omit(Was1_BM$ln_mass))
 mean_BM[3,2]<-sd(na.omit(Was1_BM$ln_mass))
 mean_BM[3,3]<-sd(na.omit(Was1_BM$ln_mass))/sqrt(nrow(Was1_BM))
 
-colnames(mean_loco)<-c("Meanloco","SDloco","SEloco")
-mean_loco[3,1]<-mean(na.omit(Was1loco$npose))
-mean_loco[3,2]<-sd(na.omit(Was1loco$npose))
-mean_loco[3,3]<-sd(na.omit(Was1loco$npose))/sqrt(nrow(Was1loco))
 
-# plot the change in climate preference
-
-library(ggplot2)
-
-Ages<-c(1:3)
-ForPlot<-cbind(Ages,mean_clims)
-ForPlot<-data.frame(ForPlot)
-Numtot<-rowSums(ForPlot[,2:3])
-ForPlot<-cbind(ForPlot,Numtot)
-
-cols <- c("MeanV1"="tan4","MeanV2"="tan1")
-
-ggplot(ForPlot, aes(x=Ages,y=MeanV1))+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="none")+
-  ylim(-0.25,0.15)+
-  xlab("NALMA")+
-  ylab("Mean Climate Preference")+
-  geom_point(aes(x=Ages,y=MeanV1,colour="MeanV1"))+
-  geom_line(aes(x=Ages,y=MeanV1,colour="MeanV1"),size=2)+
-  geom_errorbar(aes(ymin=MeanV1-SDV1,ymax=MeanV1+SDV1),colour="black",width=0.02)+
-  geom_point(aes(x=Ages,y=MeanV2,colour="MeanV2"))+
-  geom_line(aes(x=Ages,y=MeanV2,colour="MeanV2"),size=2)+
-  geom_errorbar(aes(ymin=MeanV2-SDV2,ymax=MeanV2+SDV2),colour="grey70",width=0.02)+
-  scale_colour_manual(name="Axis",values=cols, guide = guide_legend(fill = NULL,colour = NULL)) + 
-  theme_classic()
-
-# plot the change in BM
-
-library(ggplot2)
-
-Ages<-c(1:3)
-ForPlot<-cbind(Ages,mean_BM)
-ForPlot<-data.frame(ForPlot)
-Numtot<-rowSums(ForPlot[,2:3])
-ForPlot<-cbind(ForPlot,Numtot)
-
-cols <- c("MeanBM"="tan4")
-
-ggplot(ForPlot, aes(x=Ages,y=MeanBM))+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="none")+
-  ylim(2,10)+
-  xlab("NALMA")+
-  ylab("Mean Climate Preference")+
-  geom_point(aes(x=Ages,y=MeanBM,colour="MeanBM"))+
-  geom_line(aes(x=Ages,y=MeanBM,colour="MeanBM"),size=2)+
-  geom_errorbar(aes(ymin=MeanBM-SDBM,ymax=MeanBM+SDBM),colour="black",width=0.02)+
-  scale_colour_manual(name="Axis",values=cols, guide = guide_legend(fill = NULL,colour = NULL)) + 
-  theme_classic()
-
-# plot the change in loco
-
-library(ggplot2)
-
-Ages<-c(1:3)
-ForPlot<-cbind(Ages,mean_loco)
-ForPlot<-data.frame(ForPlot)
-Numtot<-rowSums(ForPlot[,2:3])
-ForPlot<-cbind(ForPlot,Numtot)
-
-cols <- c("Meanloco"="tan4")
-
-ggplot(ForPlot, aes(x=Ages,y=Meanloco))+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="none")+
-  #ylim(2,10)+
-  xlab("NALMA")+
-  ylab("Mean Climate Preference")+
-  geom_point(aes(x=Ages,y=Meanloco,colour="Meanloco"))+
-  geom_line(aes(x=Ages,y=Meanloco,colour="Meanloco"),size=2)+
-  geom_errorbar(aes(ymin=Meanloco-SDloco,ymax=Meanloco+SDloco),colour="black",width=0.02)+
-  scale_colour_manual(name="Axis",values=cols, guide = guide_legend(fill = NULL,colour = NULL)) + 
-  theme_classic()
 
 #### Without newly appearing taxa during the PETM
 
@@ -689,8 +599,11 @@ clark3_occur<-t(table)
 # Mean climate preference
 
 clark3_clims<-climpref[rownames(clark3_occur),]
+clark3_clims<-cbind(clark3_clims,"Clark3")
+colnames(clark3_clims)<-c("V1","V2","NALMA")
 clark3_BM<-BMs[rownames(clark3_occur),]
-clark3loco<-loco[rownames(clark3_occur),]
+clark3_BM<-cbind(clark3_BM,"Clark3")
+colnames(clark3_BM)<-c("V1","V2","NALMA")
 # make new object to put means in
 
 mean_clims<-matrix(nrow=3,ncol=6)
@@ -708,11 +621,6 @@ mean_BM[1,1]<-mean(na.omit(clark3_BM$ln_mass))
 mean_BM[1,2]<-sd(na.omit(clark3_BM$ln_mass))
 mean_BM[1,3]<-sd(na.omit(clark3_BM$ln_mass))/sqrt(nrow(clark3_BM))
 
-mean_loco<-matrix(nrow=3,ncol=3)
-colnames(mean_loco)<-c("Meanloco","SDloco","SEloco")
-mean_loco[1,1]<-mean(na.omit(clark3loco$npose))
-mean_loco[1,2]<-sd(na.omit(clark3loco$npose))
-mean_loco[1,3]<-sd(na.omit(clark3loco$npose))/sqrt(nrow(clark3loco))
 
 # Was0
 
@@ -790,8 +698,11 @@ Was0_occur<-Was0_occur[diffs,] # first appearances only
 # Mean climate preference
 
 Was0_clims<-climpref[rownames(Was0_occur),]
+Was0_clims<-cbind(Was0_clims,"Was0")
+colnames(Was0_clims)<-c("V1","V2","NALMA")
 Was0_BM<-BMs[rownames(Was0_occur),]
-Was0loco<-loco[rownames(Was0_occur),]
+Was0_BM<-cbind(Was0_BM,"Was0")
+colnames(Was0_BM)<-c("V1","V2","NALMA")
 # make new object to put means in
 
 mean_clims[2,1]<-mean(Was0_clims$V1)
@@ -806,11 +717,6 @@ colnames(mean_BM)<-c("MeanBM","SDBM","SEBM")
 mean_BM[2,1]<-mean(na.omit(Was0_BM$ln_mass))
 mean_BM[2,2]<-sd(na.omit(Was0_BM$ln_mass))
 mean_BM[2,3]<-sd(na.omit(Was0_BM$ln_mass))/sqrt(nrow(Was0_BM))
-
-colnames(mean_loco)<-c("Meanloco","SDloco","SEloco")
-mean_loco[2,1]<-mean(na.omit(Was0loco$npose))
-mean_loco[2,2]<-sd(na.omit(Was0loco$npose))
-mean_loco[2,3]<-sd(na.omit(Was0loco$npose))/sqrt(nrow(Was0loco))
 
 # WASOne
 
@@ -862,8 +768,11 @@ diffs2<-setdiff(rownames(Was1_occur),diffs)
 Was1_occur<-Was1_occur[diffs2,]
 
 Was1_clims<-climpref[rownames(Was1_occur),]
+Was1_clims<-cbind(Was1_clims,"Was1")
+colnames(Was1_clims)<-c("V1","V2","NALMA")
 Was1_BM<-BMs[rownames(Was1_occur),]
-Was1loco<-loco[rownames(Was1_occur),]
+Was1_BM<-cbind(Was1_BM,"Was1")
+colnames(Was1_BM)<-c("V1","V2","NALMA")
 # make new object to put means in
 
 mean_clims[3,1]<-mean(Was1_clims$V1)
@@ -879,86 +788,44 @@ mean_BM[3,1]<-mean(na.omit(Was1_BM$ln_mass))
 mean_BM[3,2]<-sd(na.omit(Was1_BM$ln_mass))
 mean_BM[3,3]<-sd(na.omit(Was1_BM$ln_mass))/sqrt(nrow(Was1_BM))
 
-colnames(mean_loco)<-c("Meanloco","SDloco","SEloco")
-mean_loco[3,1]<-mean(na.omit(Was1loco$npose))
-mean_loco[3,2]<-sd(na.omit(Was1loco$npose))
-mean_loco[3,3]<-sd(na.omit(Was1loco$npose))/sqrt(nrow(Was1loco))
+#ran similar code for plots with newly appearing species in was0
 
-
-
-library(ggplot2)
-
-Ages<-c(1:3)
-ForPlot<-cbind(Ages,mean_clims)
-ForPlot<-data.frame(ForPlot)
-Numtot<-rowSums(ForPlot[,2:3])
-ForPlot<-cbind(ForPlot,Numtot)
-
-cols <- c("MeanV1"="tan4","MeanV2"="tan1")
-
-ggplot(ForPlot, aes(x=Ages,y=MeanV1))+
+forPlot<-rbind(clark3_clims,Was0_clims,Was1_clims)
+forPlot<-data.frame(forPlot)
+#v2
+p<-ggplot(forPlot, aes(x=NALMA, y=V2,color=NALMA,fill=NALMA)) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="none")+
-  ylim(-0.25,0.15)+
-  xlab("NALMA")+
-  ylab("Mean Climate Preference")+
-  geom_point(aes(x=Ages,y=MeanV1,colour="MeanV1"))+
-  geom_line(aes(x=Ages,y=MeanV1,colour="MeanV1"),size=2)+
-  geom_errorbar(aes(ymin=MeanV1-SDV1,ymax=MeanV1+SDV1),colour="black",width=0.02)+
-  geom_point(aes(x=Ages,y=MeanV2,colour="MeanV2"))+
-  geom_line(aes(x=Ages,y=MeanV2,colour="MeanV2"),size=2)+
-  geom_errorbar(aes(ymin=MeanV2-SDV2,ymax=MeanV2+SDV2),colour="grey70",width=0.02)+
-  scale_colour_manual(name="Axis",values=cols, guide = guide_legend(fill = NULL,colour = NULL)) + 
-  theme_classic()
+  ylim(-0.2,0.2)+
+  theme_classic()+
+  geom_violin()+ 
+  scale_color_manual(values=c("black", "black", "black"))+
+  scale_fill_manual(values=c("salmon", "tan4", "purple"))+
+  labs(y = "Mean Climate Preference (NMDS 2)")
 
-# Same for BM and locomotor mode
+p+
+  #geom_jitter(data=randregates,aes(x=NALMA, y=n),position = position_jitter(width=0.02))+
+  stat_summary(data=forPlot,aes(x=NALMA, y=V2),fun=median, geom="point", size=4, color="orange")+
+  stat_summary(data=forPlot,aes(x=NALMA, y=V2),fun.data=data_summary,size=1,color="grey")
 
-# plot the change in BM
+# Now do the same for body mass
 
-library(ggplot2)
-
-Ages<-c(1:3)
-ForPlot<-cbind(Ages,mean_BM)
-ForPlot<-data.frame(ForPlot)
-Numtot<-rowSums(ForPlot[,2:3])
-ForPlot<-cbind(ForPlot,Numtot)
-
-cols <- c("MeanBM"="tan4")
-
-ggplot(ForPlot, aes(x=Ages,y=MeanBM))+
+forPlot<-rbind(clark3_BM,Was0_BM,Was1_BM)
+forPlot<-data.frame(forPlot)
+#v2
+p<-ggplot(forPlot, aes(x=NALMA, y=V2,color=NALMA,fill=NALMA)) + 
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="none")+
-  ylim(2,10)+
-  xlab("NALMA")+
-  ylab("Mean Climate Preference")+
-  geom_point(aes(x=Ages,y=MeanBM,colour="MeanBM"))+
-  geom_line(aes(x=Ages,y=MeanBM,colour="MeanBM"),size=2)+
-  geom_errorbar(aes(ymin=MeanBM-SDBM,ymax=MeanBM+SDBM),colour="black",width=0.02)+
-  scale_colour_manual(name="Axis",values=cols, guide = guide_legend(fill = NULL,colour = NULL)) + 
-  theme_classic()
+  #ylim(-0.2,0.2)+
+  theme_classic()+
+  geom_violin()+ 
+  scale_color_manual(values=c("black", "black", "black"))+
+  scale_fill_manual(values=c("salmon", "tan4", "purple"))+
+  labs(y = "Mean Body Mass (g)")
 
-# plot the change in loco
-
-library(ggplot2)
-
-Ages<-c(1:3)
-ForPlot<-cbind(Ages,mean_loco)
-ForPlot<-data.frame(ForPlot)
-Numtot<-rowSums(ForPlot[,2:3])
-ForPlot<-cbind(ForPlot,Numtot)
-
-cols <- c("Meanloco"="tan4")
-
-ggplot(ForPlot, aes(x=Ages,y=Meanloco))+
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),legend.position="none")+
-  #ylim(2,10)+
-  xlab("NALMA")+
-  ylab("Mean Climate Preference")+
-  geom_point(aes(x=Ages,y=Meanloco,colour="Meanloco"))+
-  geom_line(aes(x=Ages,y=Meanloco,colour="Meanloco"),size=2)+
-  geom_errorbar(aes(ymin=Meanloco-SDloco,ymax=Meanloco+SDloco),colour="black",width=0.02)+
-  scale_colour_manual(name="Axis",values=cols, guide = guide_legend(fill = NULL,colour = NULL)) + 
-  theme_classic()
+p+
+  #geom_jitter(data=randregates,aes(x=NALMA, y=n),position = position_jitter(width=0.02))+
+  stat_summary(data=forPlot,aes(x=NALMA, y=V2),fun=median, geom="point", size=4, color="orange")+
+  stat_summary(data=forPlot,aes(x=NALMA, y=V2),fun.data=data_summary,size=1,color="grey")
 
 
 
-######
-
+###
