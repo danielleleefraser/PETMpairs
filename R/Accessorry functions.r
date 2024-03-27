@@ -61,6 +61,11 @@ compare_climpref<-function(pairs_results,climprefs,calc.means=c("TRUE","FALSE"))
     pairs_clim[1,11]<-sd(na.omit(diffs_neg_V2))/sqrt(length(diffs_neg_V2))
     pairs_clim[1,12]<-sd(na.omit(diffs_rand_V2))/sqrt(length(diffs_rand_V2))
     
+    colnames(pairs_clim)<-c("Mean V1 agg","Mean V1 seg","Mean V1 rand",
+                            "SD V1 agg","SD V1 seg","SD V1 rand",
+                            "Mean V2 agg","Mean V2 seg","Mean V2 rand",
+                            "SD V2 agg","SD V2 seg","SD V2 rand")
+    
     return(pairs_clim)
   }
   if(calc.means=="FALSE"){
@@ -311,6 +316,7 @@ compare_mass<-function(pairs_results,BMs,calc.means=c("TRUE","FALSE")){
     pairs_BM[1,4]<-sd(na.omit(diffs_pos))/sqrt(length(diffs_pos))
     pairs_BM[1,5]<-sd(na.omit(diffs_neg))/sqrt(length(diffs_neg))
     pairs_BM[1,6]<-sd(na.omit(diffs_rand))/sqrt(length(diffs_rand))
+    colnames(pairs_BM)<-c("Mean agg","Mean seg","Mean rand","SD agg","SD seg","SD rand")
     return(pairs_BM)
   }
   if(calc.means=="FALSE"){
@@ -320,50 +326,6 @@ compare_mass<-function(pairs_results,BMs,calc.means=c("TRUE","FALSE")){
   }
 }
 
-
-# compare locomotion
-
-compare_loco<-function(pairs_results,loco,calc.means=c("TRUE","FALSE")){
-  pairs_loco<-matrix(ncol=6,nrow=1)
-  diffs_pos<-c()
-  diffs_neg<-c()
-  diffs_rand<-c()
-  positive_sig<-pairs_results[[1]]
-  negative_sig<-pairs_results[[2]]
-  random_sig<-pairs_results[[3]]
-  for(i in 1:nrow(positive_sig)){
-    focal<-positive_sig[i,]
-    first_spec<-loco[focal$sp1_name,]
-    second_spec<-loco[focal$sp2_name,]
-    diffs_pos[i]<-abs(first_spec$npose-second_spec$npose)
-  }
-  for(i in 1:nrow(negative_sig)){
-    focal<-negative_sig[i,]
-    first_spec<-loco[focal$sp1_name,]
-    second_spec<-loco[focal$sp2_name,]
-    diffs_neg[i]<-abs(first_spec$npose-second_spec$npose)
-  }
-  for(i in 1:nrow(random_sig)){
-    focal<-random_sig[i,]
-    first_spec<-loco[focal$sp1_name,]
-    second_spec<-loco[focal$sp2_name,]
-    diffs_rand[i]<-abs(first_spec$npose-second_spec$npose)
-  }
-  if(calc.means=="TRUE"){
-    pairs_loco[1,1]<-mean(na.omit(diffs_pos))
-    pairs_loco[1,2]<-mean(na.omit(diffs_neg))
-    pairs_loco[1,3]<-mean(na.omit(diffs_rand))
-    pairs_loco[1,4]<-sd(na.omit(diffs_pos))/sqrt(length(diffs_pos))
-    pairs_loco[1,5]<-sd(na.omit(diffs_neg))/sqrt(length(diffs_neg))
-    pairs_loco[1,6]<-sd(na.omit(diffs_rand))/sqrt(length(diffs_rand))
-    return(pairs_loco)
-  }
-  if(calc.means=="FALSE"){
-    results.list<-list(diffs_pos,diffs_neg,diffs_rand)
-    names(results.list)<-c("agg","seg","rand")
-    return(results.list)
-  }
-}
 
 
 Summarize.null.morph<-function(null.list){ # summarizes just for the three time periods but not across all the iterations
@@ -381,7 +343,7 @@ Summarize.null.morph<-function(null.list){ # summarizes just for the three time 
   Was_one_seg<-c()
   Was_one_rand<-c()
   
-  colnames(results.final)<-c("MeanNullagg","SENullagg","SSNullagg","LowerNullagg","UpperNullagg","MeanNullseg","SENullseg","SDNullseg","LowerNullseg","UpperNullseg",
+  colnames(results.final)<-c("MeanNullagg","SENullagg","SDNullagg","LowerNullagg","UpperNullagg","MeanNullseg","SENullseg","SDNullseg","LowerNullseg","UpperNullseg",
                              "MeanNullrand","SENullrand","SDNullrand","LowerNullrand","UpperNullrand")
   temp.list<-null.list[[1]] 
   
@@ -474,9 +436,8 @@ Summarize.null.morph<-function(null.list){ # summarizes just for the three time 
 }
 
 
-library(EcoSimR)
-
-Shuffletaxa<-function(occur,clim_prefs,BMs,loco,niter){
+Shuffletaxa<-function(occur,bins,clim_prefs,BMs,loco,niter,summarize=c("TRUE","FALSE")){
+  library(EcoSimR)#must download archived version
   clim_list<-list()
   BM_list<-list()
   loco_list<-list()
@@ -484,8 +445,8 @@ Shuffletaxa<-function(occur,clim_prefs,BMs,loco,niter){
     clim_comp<-list()
     BM_comp<-list()
     loco_comp<-list()
-    randommatrix<-sim3(occurrences)
-    rownames(randommatrix)<-rownames(occurrences)
+    randommatrix<-sim3(occur)
+    rownames(randommatrix)<-rownames(occur)
     for(b in 1:length(bins)){
       matches_sites<-intersect(bins[[b]],rownames(randommatrix))
       matrix1<-randommatrix[matches_sites,]
@@ -495,18 +456,275 @@ Shuffletaxa<-function(occur,clim_prefs,BMs,loco,niter){
       BM_comp[[b]]<-compare_mass(sig_pairs,BMs,calc.means = FALSE) # needs to be lists
       loco_comp[[b]]<-compare_loco(sig_pairs,loco,calc.means = FALSE)
     }
-    clim_list[[f]]<-clim_comp 
-    BM_list[[f]]<-BM_comp # 3 levels within each iter
-    loco_list[[f]]<-loco_comp
+    clim_list[[f]]<-clim_comp #1
+    BM_list[[f]]<-BM_comp #2
+    loco_list[[f]]<-loco_comp #3
   }
-  BM_null<-Summarize.null.morph(BM_list)# has to work with a list.
-  
-  Loco_null<-Summarize.null.morph(loco_list)
-  
-  Clim_null<-Summarize.null.clims(clim_list)
-  
-  all_null<-list(BM_null,Loco_null,Clim_null)
+  if(summarize=="TRUE"){
+    BM_null<-Summarize.null.morph(BM_list)# has to work with a list.
+    Loco_null<-Summarize.null.morph(loco_list)
+    Clim_null<-Summarize.null.clims(clim_list)
+    all_null<-list(BM_null,Loco_null,Clim_null)
+  }
+  if(summarize=="FALSE"){
+    BM_null<-Bind_null_morph(BM_list)
+    Clim_null<-Bind_null_clim(clim_list) # have to edit climt summary function
+    all_null<-list(BM_null,Clim_null)
+  }
   return(all_null)
+}
+
+
+
+Bind_null_morph<-function(null.list){
+  
+  clarkfork_three_agg<-c()#1 (BM)
+  clarkfork_three_seg<-c()
+  clarkfork_three_rand<-c()
+  
+  Was_zero_agg<-c() #BM
+  Was_zero_seg<-c()
+  Was_zero_rand<-c()
+  
+  Was_one_agg<-c() #BM
+  Was_one_seg<-c()
+  Was_one_rand<-c()
+  
+  temp.list<-null.list[[1]] 
+  
+  clarkfork_three_agg<-c(temp.list[[1]][[1]])
+  clarkfork_three_seg<-c(temp.list[[1]][[2]])
+  clarkfork_three_rand<-c(temp.list[[1]][[3]])
+  
+  Was_zero_agg<-c(temp.list[[2]][[1]])
+  Was_zero_seg<-c(temp.list[[2]][[2]])
+  Was_zero_rand<-c(temp.list[[2]][[3]])
+  
+  Was_one_agg<-c(temp.list[[3]][[1]])
+  Was_one_seg<-c(temp.list[[3]][[2]])
+  Was_one_rand<-c(temp.list[[3]][[3]])
+  
+  for(i in 2:length(null.list)) {
+    
+    temp.list <- null.list[[i]]
+    
+    clarkfork_three_agg <- c(clarkfork_three_agg, temp.list[[1]][[1]])
+    clarkfork_three_seg <- c(clarkfork_three_seg, temp.list[[1]][[2]])
+    clarkfork_three_rand <-c(clarkfork_three_rand, temp.list[[1]][[3]])
+    
+    Was_zero_agg <- c(Was_zero_agg, temp.list[[2]][[1]])
+    Was_zero_seg <- c(Was_zero_seg, temp.list[[2]][[2]])
+    Was_zero_rand <-c(Was_zero_rand, temp.list[[2]][[3]])
+    
+    Was_one_agg <- c(Was_one_agg, temp.list[[3]][[1]])
+    Was_one_seg <- c(Was_one_seg, temp.list[[3]][[2]])
+    Was_one_rand <-c(Was_one_rand, temp.list[[3]][[3]])
+    
+  }
+  
+  clarkfork_three_agg<-data.frame(clarkfork_three_agg)
+  colnames(clarkfork_three_agg)<-c("n")
+  clarkfork_three_rand<-data.frame(clarkfork_three_rand)
+  colnames(clarkfork_three_rand)<-c("n")
+  clarkfork_three_seg<-data.frame(clarkfork_three_seg)
+  colnames(clarkfork_three_seg)<-c("n")
+  
+  clarkforknames<-c(rep("agg",nrow(clarkfork_three_agg)),rep("rand",nrow(clarkfork_three_rand)),
+                    rep("seg",nrow(clarkfork_three_seg)))
+  clarkfork<-data.frame(rbind(clarkfork_three_agg,clarkfork_three_rand,clarkfork_three_seg))
+  clarkfork<-cbind(clarkforknames,clarkfork)
+  
+  Was_zero_agg<-data.frame(Was_zero_agg)
+  colnames(Was_zero_agg)<-c("n")
+  Was_zero_rand<-data.frame(Was_zero_rand)
+  colnames(Was_zero_rand)<-c("n")
+  Was_zero_seg<-data.frame(Was_zero_seg)
+  colnames(Was_zero_seg)<-c("n")
+  
+  Was_zeronames<-c(rep("agg",nrow(Was_zero_agg)),rep("rand",nrow(Was_zero_rand)),
+                   rep("seg",nrow(Was_zero_seg)))
+  Was_zero<-data.frame(rbind(Was_zero_agg,Was_zero_rand,Was_zero_seg))
+  Was_zero<-cbind(Was_zeronames,Was_zero)
+  
+  Was_one_agg<-data.frame(Was_one_agg)
+  colnames(Was_one_agg)<-c("n")
+  Was_one_rand<-data.frame(Was_one_rand)
+  colnames(Was_one_rand)<-c("n")
+  Was_one_seg<-data.frame(Was_one_seg)
+  colnames(Was_one_seg)<-c("n")
+  
+  Was_onenames<-c(rep("agg",nrow(Was_one_agg)),rep("rand",nrow(Was_one_rand)),
+                  rep("seg",nrow(Was_one_seg)))
+  Was_one<-data.frame(rbind(Was_one_agg,Was_one_rand,Was_one_seg))
+  Was_one<-cbind(Was_onenames,Was_one)
+  
+  results.final<-list(clarkfork,Was_one,Was_zero)
+  return(results.final)
+}
+
+
+Bind_null_clim<-function(null.list){
+  
+  clarkfork_three_agg_v1<-c()#1 (BM)
+  clarkfork_three_seg_v1<-c()
+  clarkfork_three_rand_v1<-c()
+  
+  Was_zero_agg_v1<-c() #BM
+  Was_zero_seg_v1<-c()
+  Was_zero_rand_v1<-c()
+  
+  Was_one_agg_v1<-c() #BM
+  Was_one_seg_v1<-c()
+  Was_one_rand_v1<-c()
+  
+  clarkfork_three_agg_v2<-c()#1 (BM)
+  clarkfork_three_seg_v2<-c()
+  clarkfork_three_rand_v2<-c()
+  
+  Was_zero_agg_v2<-c() #BM
+  Was_zero_seg_v2<-c()
+  Was_zero_rand_v2<-c()
+  
+  Was_one_agg_v2<-c() #BM
+  Was_one_seg_v2<-c()
+  Was_one_rand_v2<-c()
+  
+  temp.list.v1<-null.list[[1]] 
+  
+  clarkfork_three_agg_v1<-c(temp.list.v1[[1]][[1]])
+  clarkfork_three_seg_v1<-c(temp.list.v1[[1]][[2]])
+  clarkfork_three_rand_v1<-c(temp.list.v1[[1]][[3]])
+  
+  Was_zero_agg_v1<-c(temp.list.v1[[2]][[1]])
+  Was_zero_seg_v1<-c(temp.list.v1[[2]][[2]])
+  Was_zero_rand_v1<-c(temp.list.v1[[2]][[3]])
+  
+  Was_one_agg_v1<-c(temp.list.v1[[3]][[1]])
+  Was_one_seg_v1<-c(temp.list.v1[[3]][[2]])
+  Was_one_rand_v1<-c(temp.list.v1[[3]][[3]])
+  
+  temp.list.v2<-null.list[[1]] 
+  
+  clarkfork_three_agg_v2<-c(temp.list.v2[[1]][[1]])
+  clarkfork_three_seg_v2<-c(temp.list.v2[[1]][[2]])
+  clarkfork_three_rand_v2<-c(temp.list.v2[[1]][[3]])
+  
+  Was_zero_agg_v2<-c(temp.list.v2[[2]][[1]])
+  Was_zero_seg_v2<-c(temp.list.v2[[2]][[2]])
+  Was_zero_rand_v2<-c(temp.list.v2[[2]][[3]])
+  
+  Was_one_agg_v2<-c(temp.list.v2[[3]][[1]])
+  Was_one_seg_v2<-c(temp.list.v2[[3]][[2]])
+  Was_one_rand_v2<-c(temp.list.v2[[3]][[3]])
+  
+  for(i in 2:length(null.list)) {
+    
+    temp.list_v1 <- null.list[[i]]
+    
+    clarkfork_three_agg_v1 <- c(clarkfork_three_agg_v1, temp.list_v1[[1]][[1]])
+    clarkfork_three_seg_v1 <- c(clarkfork_three_seg_v1, temp.list_v1[[1]][[2]])
+    clarkfork_three_rand_v1 <-c(clarkfork_three_rand_v1, temp.list_v1[[1]][[3]])
+    
+    Was_zero_agg_v1 <- c(Was_zero_agg_v1, temp.list_v1[[2]][[1]])
+    Was_zero_seg_v1 <- c(Was_zero_seg_v1, temp.list_v1[[2]][[2]])
+    Was_zero_rand_v1 <-c(Was_zero_rand_v1, temp.list_v1[[2]][[3]])
+    
+    Was_one_agg_v1 <- c(Was_one_agg_v1, temp.list_v1[[3]][[1]])
+    Was_one_seg_v1 <- c(Was_one_seg_v1, temp.list_v1[[3]][[2]])
+    Was_one_rand_v1 <-c(Was_one_rand_v1, temp.list_v1[[3]][[3]])
+    
+    temp.list_v2 <- null.list[[i]]
+    
+    clarkfork_three_agg_v2 <- c(clarkfork_three_agg_v2, temp.list_v2[[1]][[1]])
+    clarkfork_three_seg_v2 <- c(clarkfork_three_seg_v2, temp.list_v2[[1]][[2]])
+    clarkfork_three_rand_v2 <-c(clarkfork_three_rand_v2, temp.list_v2[[1]][[3]])
+    
+    Was_zero_agg_v2 <- c(Was_zero_agg_v2, temp.list_v2[[2]][[1]])
+    Was_zero_seg_v2 <- c(Was_zero_seg_v2, temp.list_v2[[2]][[2]])
+    Was_zero_rand_v2 <-c(Was_zero_rand_v2, temp.list_v2[[2]][[3]])
+    
+    Was_one_agg_v2 <- c(Was_one_agg_v2, temp.list_v2[[3]][[1]])
+    Was_one_seg_v2 <- c(Was_one_seg_v2, temp.list_v2[[3]][[2]])
+    Was_one_rand_v2 <-c(Was_one_rand_v2, temp.list_v2[[3]][[3]])
+    
+  }
+  
+  clarkfork_three_agg_v1<-data.frame(clarkfork_three_agg_v1)
+  colnames(clarkfork_three_agg_v1)<-c("n")
+  clarkfork_three_rand_v1<-data.frame(clarkfork_three_rand_v1)
+  colnames(clarkfork_three_rand_v1)<-c("n")
+  clarkfork_three_seg_v1<-data.frame(clarkfork_three_seg_v1)
+  colnames(clarkfork_three_seg_v1)<-c("n")
+  
+  clarkforknames_v1<-c(rep("agg",nrow(clarkfork_three_agg_v1)),rep("rand",nrow(clarkfork_three_rand_v1)),
+                       rep("seg",nrow(clarkfork_three_seg_v1)))
+  clarkfork_v1<-data.frame(rbind(clarkfork_three_agg_v1,clarkfork_three_rand_v1,clarkfork_three_seg_v1))
+  clarkfork_v1<-cbind(clarkforknames_v1,clarkfork_v1)
+  
+  clarkfork_three_agg_v2<-data.frame(clarkfork_three_agg_v2)
+  colnames(clarkfork_three_agg_v2)<-c("n")
+  clarkfork_three_rand_v2<-data.frame(clarkfork_three_rand_v2)
+  colnames(clarkfork_three_rand_v2)<-c("n")
+  clarkfork_three_seg_v2<-data.frame(clarkfork_three_seg_v2)
+  colnames(clarkfork_three_seg_v2)<-c("n")
+  
+  clarkforknames_v2<-c(rep("agg",nrow(clarkfork_three_agg_v2)),rep("rand",nrow(clarkfork_three_rand_v2)),
+                       rep("seg",nrow(clarkfork_three_seg_v2)))
+  clarkfork_v2<-data.frame(rbind(clarkfork_three_agg_v2,clarkfork_three_rand_v2,clarkfork_three_seg_v2))
+  clarkfork_v2<-cbind(clarkforknames_v2,clarkfork_v2)
+  
+  Was_zero_agg_v1<-data.frame(Was_zero_agg_v1)
+  colnames(Was_zero_agg_v1)<-c("n")
+  Was_zero_rand_v1<-data.frame(Was_zero_rand_v1)
+  colnames(Was_zero_rand_v1)<-c("n")
+  Was_zero_seg_v1<-data.frame(Was_zero_seg_v1)
+  colnames(Was_zero_seg_v1)<-c("n")
+  
+  Was_zeronames_v1<-c(rep("agg",nrow(Was_zero_agg_v1)),rep("rand",nrow(Was_zero_rand_v1)),
+                      rep("seg",nrow(Was_zero_seg_v1)))
+  Was_zero_v1<-data.frame(rbind(Was_zero_agg_v1,Was_zero_rand_v1,Was_zero_seg_v1))
+  Was_zero_v1<-cbind(Was_zeronames_v1,Was_zero_v1)
+  
+  Was_zero_agg_v2<-data.frame(Was_zero_agg_v2)
+  colnames(Was_zero_agg_v2)<-c("n")
+  Was_zero_rand_v2<-data.frame(Was_zero_rand_v2)
+  colnames(Was_zero_rand_v2)<-c("n")
+  Was_zero_seg_v2<-data.frame(Was_zero_seg_v2)
+  colnames(Was_zero_seg_v2)<-c("n")
+  
+  Was_zeronames_v2<-c(rep("agg",nrow(Was_zero_agg_v2)),rep("rand",nrow(Was_zero_rand_v2)),
+                      rep("seg",nrow(Was_zero_seg_v2)))
+  Was_zero_v2<-data.frame(rbind(Was_zero_agg_v2,Was_zero_rand_v2,Was_zero_seg_v2))
+  Was_zero_v2<-cbind(Was_zeronames_v2,Was_zero_v2)
+  
+  Was_one_agg_v1<-data.frame(Was_one_agg_v1)
+  colnames(Was_one_agg_v1)<-c("n")
+  Was_one_rand_v1<-data.frame(Was_one_rand_v1)
+  colnames(Was_one_rand_v1)<-c("n")
+  Was_one_seg_v1<-data.frame(Was_one_seg_v1)
+  colnames(Was_one_seg_v1)<-c("n")
+  
+  Was_onenames_v1<-c(rep("agg",nrow(Was_one_agg_v1)),rep("rand",nrow(Was_one_rand_v1)),
+                     rep("seg",nrow(Was_one_seg_v1)))
+  Was_one_v1<-data.frame(rbind(Was_one_agg_v1,Was_one_rand_v1,Was_one_seg_v1))
+  Was_one_v1<-cbind(Was_onenames_v1,Was_one_v1)
+  
+  Was_one_agg_v2<-data.frame(Was_one_agg_v2)
+  colnames(Was_one_agg_v2)<-c("n")
+  Was_one_rand_v2<-data.frame(Was_one_rand_v2)
+  colnames(Was_one_rand_v2)<-c("n")
+  Was_one_seg_v2<-data.frame(Was_one_seg_v2)
+  colnames(Was_one_seg_v2)<-c("n")
+  
+  Was_onenames_v2<-c(rep("agg",nrow(Was_one_agg_v2)),rep("rand",nrow(Was_one_rand_v2)),
+                     rep("seg",nrow(Was_one_seg_v2)))
+  Was_one_v2<-data.frame(rbind(Was_one_agg_v2,Was_one_rand_v2,Was_one_seg_v2))
+  Was_one_v2<-cbind(Was_onenames_v2,Was_one_v2)
+  
+  results.final.v1<-list(clarkfork_v1,Was_one_v1,Was_zero_v1)
+  results.final.v2<-list(clarkfork_v2,Was_one_v1,Was_zero_v2)
+  results.final<-list(results.final.v1,results.final.v2)
+  return(results.final)
 }
 
 ####
