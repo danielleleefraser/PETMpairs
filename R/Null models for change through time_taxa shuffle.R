@@ -1,9 +1,10 @@
 
 # Null models to test for change through time
 
+library(here)
 library(cooccur)
 
-petm_occur<-read.csv(here("Data/petm_occur.csv"),header=T)
+petm_all<-read.csv(here("Data/petm_occur.csv"),header=T)
 
 # Clarkfork3
 
@@ -163,22 +164,19 @@ Was1_localities<-c("WW-89",
               "SC-47",
               "SC-46")
 
-
+#occurrences?
 all_locs<-c(clark3_localities,Was0_localities,Was1_localities)
 bins<-list(clark3_localities,Was0_localities,Was1_localities)
-matches<-intersect(rownames(petm_all),all_locs)
+matches<-intersect(petm_all$collection_name,all_locs)
+
 occurrences<-petm_all[matches,]
 occurrences<-occurrences[rowSums(occurrences)>0,]
 occurrences<-occurrences[,colSums(occurrences)>0]
 
 clim_prefs<-read.csv(here("Data/Mammal climate prefs new.csv"),header=T,row.names = 1)
-BMs<-read.csv(here("Data/All masses combined Feb 2017.csv"),header=T,row.names=1)
-loco<-read.csv(here("Data/LocomotorData.csv"),header=T,row.names=1)
+BMs<-read.csv(here("Data/All masses combined.csv"),header=T,row.names=1)
 
-null_results<-Shuffletaxa(occurences,clim_prefs,BMs,loco,niter=1000)
-write.csv(null_results[[1]],"Null model BM.csv")
-write.csv(null_results[[2]],"Null model Loco.csv")
-write.csv(null_results[[3]],"Null model Clim.csv")
+null_results<-Shuffletaxa(occurences,clim_prefs,BMs,loco,niter=1000,summarize="FALSE")
 
 ###
 
