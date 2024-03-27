@@ -6,11 +6,9 @@ library(here)
 
 petm_occur<-read.csv(here("Data/petm_occur.csv"),header=T)
 
-source("Acessory functions.r")
+source(here("R/Accessorry functions.r"))
 
 # Clarkfork3
-
-library(cooccur)
 
 localities<-c("SC-8",
               "SC-9",
@@ -100,20 +98,12 @@ cooccur.clark3<-pairs_calc(clark3_occur)
 
 clim_prefs<-read.csv(here("Data/Mammal climate prefs new.csv"),header=T,row.names = 1)
 BMs<-read.csv(here("Data/All masses combined.csv"),header=T,row.names=1)
-loco<-read.csv(here("Data/LocomotorData.csv"),header=T,row.names=1)
 
 # Compare climate preferences of pairs
-Clark3clim_comp<-compare_climpref(cooccur.clark3,clim_prefs,calc.means=TRUE)
-colnames(Clark3clim_comp)<-c("DiffposNMDS1","DiffnegNMDS1","DiffrandNMDS1","sdposNMDS1","sdnegNMDS1","sdrandNMDS1","DiffposNMDS2",
-                             "DiffnegNMDS2","DiffrandNMDS2","sdposNMDS2","sdnegNMDS2","sdrandNMDS2")
+Clark3clim_comp<-compare_climpref(cooccur.clark3,clim_prefs,calc.means=FALSE)
 
 # Compare masses of pairs
-Clark3BM_comp<-compare_mass(cooccur.clark3,BMs,calc.means = TRUE)
-colnames(Clark3BM_comp)<-c("DiffposBM","DiffnegBM","DiffrandBM","sefposBM","senegBM","serandBM")
-
-# Compare locomotor mode of pairs 
-Clark3loco_comp<-compare_loco(cooccur.clark3,loco,calc.means = TRUE)
-colnames(Clark3loco_comp)<-c("Diffposloco","Diffnegloco","Diffrandloco","sdfposloco","sdnegloco","sdrandloco")
+Clark3BM_comp<-compare_mass(cooccur.clark3,BMs,calc.means = FALSE)
 
 # Repeat for other two NALMAs
 
@@ -181,16 +171,10 @@ Was0_occur<-t(table)
 
 cooccur.Was0<-pairs_calc(Was0_occur)
 
-Was0clim_comp<-compare_climpref(cooccur.Was0,clim_prefs,calc.means=TRUE)
-colnames(Was0clim_comp)<-c("DiffposNMDS1","DiffnegNMDS1","DiffrandNMDS1","sdposNMDS1","sdnegNMDS1","sdrandNMDS1","DiffposNMDS2",
-                             "DiffnegNMDS2","DiffrandNMDS2","sdposNMDS2","sdnegNMDS2","sdrandNMDS2")
+Was0clim_comp<-compare_climpref(cooccur.Was0,clim_prefs,calc.means=FALSE)
 
 
-Was0BM_comp<-compare_mass(cooccur.Was0,BMs,calc.means = TRUE)
-colnames(Was0BM_comp)<-c("DiffposBM","DiffnegBM","DiffrandBM","sefposBM","senegBM","serandBM")
-
-Was0loco_comp<-compare_loco(cooccur.Was0,loco,calc.means = TRUE)
-colnames(Was0loco_comp)<-c("Diffposloco","Diffnegloco","Diffrandloco","sdfposloco","sdnegloco","sdrandloco")
+Was0BM_comp<-compare_mass(cooccur.Was0,BMs,calc.means = FALSE)
 
 # WASOne
 
@@ -240,17 +224,11 @@ Was1_occur<-t(table)
 
 cooccur.Was1<-pairs_calc(Was1_occur)
 
-Was1clim_comp<-compare_climpref(cooccur.Was1,clim_prefs,calc.means=TRUE)
-colnames(Was1clim_comp)<-c("DiffposNMDS1","DiffnegNMDS1","DiffrandNMDS1","sdposNMDS1","sdnegNMDS1","sdrandNMDS1","DiffposNMDS2",
-                           "DiffnegNMDS2","DiffrandNMDS2","sdposNMDS2","sdnegNMDS2","sdrandNMDS2")
+Was1clim_comp<-compare_climpref(cooccur.Was1,clim_prefs,calc.means=FALSE)
 
+Was1BM_comp<-compare_mass(cooccur.Was1,BMs,calc.means = FALSE)
 
-Was1BM_comp<-compare_mass(cooccur.Was1,BMs,calc.means = TRUE)
-colnames(Was1BM_comp)<-c("DiffposBM","DiffnegBM","DiffrandBM","sefposBM","senegBM","serandBM")
-
-Was1loco_comp<-compare_loco(cooccur.Was1,loco,calc.means = TRUE)
-colnames(Was1loco_comp)<-c("Diffposloco","Diffnegloco","Diffrandloco","sdfposloco","sdnegloco","sdrandloco")
-
+Was1loco_comp<-compare_loco(cooccur.Was1,loco,calc.means = FALSE)
 
 # Plot changes in numbers of pairs
 
@@ -286,5 +264,6 @@ ggplot(ForPlot, aes(x=Ages,y=Agg))+
   scale_colour_manual(name="Type of Pair",values=cols, guide = guide_legend(fill = NULL,colour = NULL)) + 
   theme_classic()
 
+# Violin plots are a separate script
 
 ##
